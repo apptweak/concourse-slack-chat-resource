@@ -12,10 +12,10 @@ import (
 )
 
 func main() {
-	if len(os.Args) < 2 {
-		println("usage: " + os.Args[0] + " <source>")
-		os.Exit(1)
-	}
+    if len(os.Args) < 2 {
+        println("usage: " + os.Args[0] + " <source>")
+        os.Exit(1)
+    }
 
     source_dir := os.Args[1]
 
@@ -74,6 +74,23 @@ func main() {
     response_err := json.NewEncoder(os.Stdout).Encode(&response)
     if response_err != nil {
         fatal("encoding response", response_err)
+    }
+
+    if request.Params.Reaction != nil {
+        if request.Params.Reaction.MsgTimestampID == nil {
+            fatal1("Missing params[reaction] field: msg_ts")
+        }
+
+        if request.Params.Reaction.Emoji == nil {
+            fatal1("Missing params[reaction] field: emoji")
+        }
+
+        response := add_reaction_to_message(request, &request, slack_client)
+
+        response_err := json.NewEncoder(os.Stdout).Encode(&response)
+        if response_err != nil {
+            fatal("encoding response", response_err)
+        }
     }
 }
 
@@ -231,6 +248,25 @@ func uploadFile(response *utils.OutResponse, request *utils.OutRequest, slack_cl
     fmt.Fprintf(os.Stderr,"Name: " + file.Name + ", URL: "+ file.URLPrivate +"\n")
 
     response.Metadata = append(response.Metadata, utils.MetadataField{Name: file.Name, Value: file.URLPrivate})
+}
+
+// add_reaction_to_message allows you to add a reaction, to a message.
+func add_reaction_to_message(request *utils.OutRequest, slack_client *slack.Client) error {
+    reactItemRef := slack.NewRefToMessage(request.Source.ChannelId, request.Params.Reaction.MsgTimestampID)
+
+    _, err = slack_client.AddReaction(request.Params.Reaction.Emoji, reactItemRef)
+
+    if err != nil {
+        fatal("sending", err)
+    }
+
+}
+
+// remove_reaction_from_message allows you to remove a reaction, from a message.
+func remove_reaction_from_message(msg_ts string, channel string, reaction string, request *utils.OutRequest, slack_client *slack.Client) error
+    reactItemRef := slack.NewRefToMessage(channel, msg_ts)
+
+    return slack_client.RemoveReaction(reaction, reactionRef)
 }
 
 func fatal(doing string, err error) {

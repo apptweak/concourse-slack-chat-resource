@@ -1,0 +1,13 @@
+{
+  "source": {
+    "token": "$SLACK_BOT_API_TOKEN",
+    "channel_id": "SLACK_CHANNEL_ID"
+  },
+  "params": {
+    "message_file": "test-message.json",
+    "upload": {
+      "filename": "testfile",
+      "file": "test-message.json"
+    }
+  }
+}

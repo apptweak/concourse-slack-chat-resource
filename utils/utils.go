@@ -73,6 +73,11 @@ type Upload struct {
     Title    string `json:title`
 }
 
+type OutReaction struct {
+    MsgTimestampID string `json:"msg_ts"`
+    Emoji string `json:"emoji"`
+}
+
 type OutResponse struct {
     Version  Version  `json:"version"`
     Metadata Metadata `json:"metadata"`
